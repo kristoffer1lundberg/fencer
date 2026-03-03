@@ -30,7 +30,7 @@ The plugin will:
 ## Installation
 
 ```bash
-npm install markdown-components
+npm install @kristofferlundb/fencer
 ```
 
 ### Peer dependencies
@@ -46,7 +46,7 @@ npm install zod
 ```js
 import { remark } from "remark";
 import remarkHtml from "remark-html";
-import remarkComponents from "markdown-components";
+import fencer from "@kristofferlundb/fencer";
 
 const markdown = `
 # Hello
@@ -61,7 +61,7 @@ Regular paragraph here.
 `;
 
 const result = await remark()
-  .use(remarkComponents, {
+  .use(fencer, {
     renderer: (data) => {
       return `<div class="${data.type}"><h3>${data.title}</h3><p>${data.text}</p></div>`;
     },
@@ -82,7 +82,7 @@ console.log(String(result));
 
 ## API
 
-### `remarkComponents(options)`
+### `fencer(options)`
 
 #### `options.renderer` (required)
 
@@ -93,7 +93,7 @@ A function that receives the parsed component data and returns either:
 
 ```js
 // String renderer
-renderer: (data) => `<div class="${data.type}">${data.title}</div>`
+renderer: (data) => `<div class="${data.type}">${data.title}</div>`,
 
 // Node renderer
 renderer: (data) => ({
@@ -115,7 +115,7 @@ const ComponentSchema = z.object({
   text: z.string(),
 });
 
-remark().use(remarkComponents, {
+remark().use(fencer, {
   schema: ComponentSchema,
   renderer: (data) => {
     // data is typed as { title: string; type: "factBox" | "callout" | "quote"; text: string }
@@ -135,7 +135,7 @@ Controls what happens when Zod validation fails. Default: `"throw"`.
 | `"passthrough"` | Silently ignores the error and passes the raw data to renderer    |
 
 ```js
-remark().use(remarkComponents, {
+remark().use(fencer, {
   schema: MySchema,
   onValidationError: "warn",
   renderer: (data) => `<div>${data.title}</div>`,
@@ -148,7 +148,7 @@ The fenced code block language identifier to match. Default: `"component"`.
 
 ```js
 // Match ```widget blocks instead of ```component
-remark().use(remarkComponents, {
+remark().use(fencer, {
   lang: "widget",
   renderer: (data) => `<widget-element>${data.title}</widget-element>`,
 });
@@ -161,10 +161,10 @@ remark().use(remarkComponents, {
 ```js
 import { remark } from "remark";
 import remarkHtml from "remark-html";
-import remarkComponents from "markdown-components";
+import fencer from "@kristofferlundb/fencer";
 
 const html = await remark()
-  .use(remarkComponents, {
+  .use(fencer, {
     renderer: (data) =>
       `<div class="component component--${data.type}">
         <h3>${data.title}</h3>
@@ -180,7 +180,7 @@ const html = await remark()
 Since the renderer returns HTML strings that get embedded in the AST, you can use this with any React-based Markdown pipeline. A common pattern is to output custom element tags that map to React components:
 
 ```js
-remark().use(remarkComponents, {
+remark().use(fencer, {
   renderer: (data) => {
     // Emit a custom element that your React component library can pick up
     const props = Object.entries(data)
@@ -194,7 +194,7 @@ remark().use(remarkComponents, {
 Or for `rehype`-based pipelines, return a custom mdast node:
 
 ```js
-remark().use(remarkComponents, {
+remark().use(fencer, {
   renderer: (data) => ({
     type: "html",
     value: `<custom-component data-props='${JSON.stringify(data)}'></custom-component>`,
@@ -206,13 +206,13 @@ remark().use(remarkComponents, {
 
 ```js
 // astro.config.mjs
-import remarkComponents from "markdown-components";
+import fencer from "@kristofferlundb/fencer";
 
 export default defineConfig({
   markdown: {
     remarkPlugins: [
       [
-        remarkComponents,
+        fencer,
         {
           renderer: (data) =>
             `<div class="${data.type}"><h3>${data.title}</h3><p>${data.text}</p></div>`,
@@ -278,7 +278,7 @@ text: >
 In addition to the main plugin, the package exports the internal utilities for standalone use:
 
 ```ts
-import { parseYaml, validateData } from "markdown-components";
+import { parseYaml, validateData } from "@kristofferlundb/fencer";
 
 // Parse YAML string to object
 const data = parseYaml("title: Hello\ntype: box");
@@ -295,14 +295,14 @@ const validated = validateData(data, schema);
 Full TypeScript support is included out of the box. The package ships with declaration files for both ESM and CJS.
 
 ```ts
-import remarkComponents from "markdown-components";
+import fencer from "@kristofferlundb/fencer";
 import type {
   PluginOptions,
   Renderer,
   RendererResult,
   ComponentNode,
   ValidationErrorMode,
-} from "markdown-components";
+} from "@kristofferlundb/fencer";
 ```
 
 When you provide a Zod schema, the renderer's `data` parameter is automatically inferred:
@@ -316,7 +316,7 @@ const schema = z.object({
   text: z.string(),
 });
 
-remark().use(remarkComponents, {
+remark().use(fencer, {
   schema,
   renderer: (data) => {
     // TypeScript knows: data.title is string, data.type is "factBox" | "callout", etc.

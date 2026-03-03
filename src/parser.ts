@@ -9,9 +9,7 @@ import { parse } from "yaml";
  */
 export function parseYaml(content: string): Record<string, unknown> {
   if (!content || content.trim().length === 0) {
-    throw new Error(
-      "[markdown-components] Empty component block — expected YAML content.",
-    );
+    throw new Error("[fencer] Empty component block — expected YAML content.");
   }
 
   let parsed: unknown;
@@ -20,18 +18,16 @@ export function parseYaml(content: string): Record<string, unknown> {
     parsed = parse(content);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    throw new Error(`[markdown-components] Failed to parse YAML: ${message}`);
+    throw new Error(`[fencer] Failed to parse YAML: ${message}`);
   }
 
   if (parsed === null || parsed === undefined) {
-    throw new Error(
-      "[markdown-components] YAML content resolved to null or undefined.",
-    );
+    throw new Error("[fencer] YAML content resolved to null or undefined.");
   }
 
   if (typeof parsed !== "object" || Array.isArray(parsed)) {
     throw new Error(
-      `[markdown-components] Expected YAML to produce an object, but got ${Array.isArray(parsed) ? "an array" : typeof parsed}.`,
+      `[fencer] Expected YAML to produce an object, but got ${Array.isArray(parsed) ? "an array" : typeof parsed}.`,
     );
   }
 

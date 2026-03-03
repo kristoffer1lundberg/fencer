@@ -1,10 +1,10 @@
-import type { ZodType, ZodError } from 'zod'
-import type { ValidationErrorMode } from './types.js'
+import type { ZodType, ZodError } from "zod";
+import type { ValidationErrorMode } from "./types.js";
 
 export interface ValidationResult<T> {
-  success: boolean
-  data: T
-  error?: ZodError
+  success: boolean;
+  data: T;
+  error?: ZodError;
 }
 
 /**
@@ -18,30 +18,30 @@ export interface ValidationResult<T> {
 export function validateData<T>(
   data: unknown,
   schema: ZodType<T>,
-  mode: ValidationErrorMode = 'throw',
+  mode: ValidationErrorMode = "throw",
 ): T {
-  const result = schema.safeParse(data)
+  const result = schema.safeParse(data);
 
   if (result.success) {
-    return result.data
+    return result.data;
   }
 
-  const errorMessage = formatZodError(result.error)
+  const errorMessage = formatZodError(result.error);
 
   switch (mode) {
-    case 'throw':
-      throw new Error(`[markdown-components] Validation error: ${errorMessage}`)
+    case "throw":
+      throw new Error(`[fencer] Validation error: ${errorMessage}`);
 
-    case 'warn':
-      console.warn(`[markdown-components] Validation warning: ${errorMessage}`)
-      return data as T
+    case "warn":
+      console.warn(`[fencer] Validation warning: ${errorMessage}`);
+      return data as T;
 
-    case 'passthrough':
-      return data as T
+    case "passthrough":
+      return data as T;
 
     default: {
-      const _exhaustive: never = mode
-      throw new Error(`[markdown-components] Unknown validation mode: ${_exhaustive}`)
+      const _exhaustive: never = mode;
+      throw new Error(`[fencer] Unknown validation mode: ${_exhaustive}`);
     }
   }
 }
@@ -52,8 +52,8 @@ export function validateData<T>(
 function formatZodError(error: ZodError): string {
   return error.issues
     .map((issue) => {
-      const path = issue.path.length > 0 ? `"${issue.path.join('.')}"` : 'root'
-      return `${path}: ${issue.message}`
+      const path = issue.path.length > 0 ? `"${issue.path.join(".")}"` : "root";
+      return `${path}: ${issue.message}`;
     })
-    .join('; ')
+    .join("; ");
 }

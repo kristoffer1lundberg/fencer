@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import { remark } from "remark";
 import remarkHtml from "remark-html";
 import { z } from "zod";
-import remarkComponents from "../src/plugin.js";
+import fencer from "../src/plugin.js";
 import { parseYaml } from "../src/parser.js";
 import { validateData } from "../src/validator.js";
 import type { PluginOptions } from "../src/types.js";
@@ -121,15 +121,15 @@ describe("validateData", () => {
 });
 
 // ---------------------------------------------------------------------------
-// remarkComponents plugin — integration
+// fencer plugin — integration
 // ---------------------------------------------------------------------------
-describe("remarkComponents plugin", () => {
+describe("fencer plugin", () => {
   const process = async (
     markdown: string,
     options: PluginOptions<any>,
   ): Promise<string> => {
     const file = await remark()
-      .use(remarkComponents, options)
+      .use(fencer, options)
       .use(remarkHtml, { sanitize: false })
       .process(markdown);
     return String(file);
@@ -304,7 +304,7 @@ describe("remarkComponents plugin", () => {
   it("throws when renderer is not provided", () => {
     expect(() => {
       remark()
-        .use(remarkComponents, {} as any)
+        .use(fencer, {} as any)
         .processSync("```component\ntitle: Test\n```");
     }).toThrow("renderer");
   });

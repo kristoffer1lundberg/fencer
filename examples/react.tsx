@@ -1,7 +1,7 @@
 /**
  * Example: Rendering React components from Markdown component blocks
  *
- * This shows how to use markdown-components with react-markdown to render
+ * This shows how to use @kristofferlundb/fencer with react-markdown to render
  * real React components from ```component blocks.
  *
  * The approach:
@@ -20,7 +20,7 @@
 
 import React from "react";
 import ReactMarkdown from "react-markdown";
-import remarkComponents from "../src/index.js";
+import fencer from "../src/index.js";
 import { z } from "zod";
 
 // ─── Zod schemas ────────────────────────────────────────────────────────────
@@ -215,7 +215,7 @@ export function MarkdownWithComponents({ content }: { content: string }) {
     <ReactMarkdown
       remarkPlugins={[
         [
-          remarkComponents,
+          fencer,
           {
             schema: ComponentSchema,
             renderer: (data: ComponentData) => {

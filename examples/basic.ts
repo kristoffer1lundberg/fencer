@@ -1,6 +1,6 @@
 import { remark } from "remark";
 import remarkHtml from "remark-html";
-import remarkComponents from "../src/index.js";
+import fencer from "../src/index.js";
 
 const markdown = `
 # Welcome to the Demo
@@ -32,7 +32,7 @@ And a final paragraph to wrap things up.
 
 async function main() {
   const result = await remark()
-    .use(remarkComponents, {
+    .use(fencer, {
       renderer: (data) => {
         const type = data.type as string;
         const title = data.title as string;

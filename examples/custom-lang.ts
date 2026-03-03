@@ -10,7 +10,7 @@
 
 import { remark } from "remark";
 import remarkHtml from "remark-html";
-import remarkComponents from "../src/index.js";
+import fencer from "../src/index.js";
 
 const markdown = `
 # Widget Gallery
@@ -43,7 +43,7 @@ console.log("I'm not a widget!");
 async function main() {
   // Using a custom lang tag and returning mdast node objects
   const result = await remark()
-    .use(remarkComponents, {
+    .use(fencer, {
       lang: "widget",
       renderer: (data) => {
         // Return a custom mdast node instead of a plain string

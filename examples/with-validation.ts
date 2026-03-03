@@ -1,12 +1,12 @@
 /**
- * Example: Using markdown-components with Zod validation
+ * Example: Using @kristofferlundb/fencer with Zod validation
  *
  * Run with: npx tsx examples/with-validation.ts
  */
 import { remark } from "remark";
 import remarkHtml from "remark-html";
 import { z } from "zod";
-import remarkComponents from "../src/index.js";
+import fencer from "../src/index.js";
 
 // ── Define schemas for different component types ────────────────────────────
 
@@ -52,11 +52,34 @@ function renderComponent(data: ComponentData): string {
 </div>`.trim();
 
     case "callout": {
-      const styles: Record<string, { icon: string; border: string; bg: string; color: string }> = {
-        info:    { icon: "ℹ️", border: "#3b82f6", bg: "#eff6ff", color: "#1e40af" },
-        warning: { icon: "⚠️", border: "#f59e0b", bg: "#fffbeb", color: "#92400e" },
-        error:   { icon: "🚨", border: "#ef4444", bg: "#fef2f2", color: "#991b1b" },
-        success: { icon: "✅", border: "#10b981", bg: "#ecfdf5", color: "#065f46" },
+      const styles: Record<
+        string,
+        { icon: string; border: string; bg: string; color: string }
+      > = {
+        info: {
+          icon: "ℹ️",
+          border: "#3b82f6",
+          bg: "#eff6ff",
+          color: "#1e40af",
+        },
+        warning: {
+          icon: "⚠️",
+          border: "#f59e0b",
+          bg: "#fffbeb",
+          color: "#92400e",
+        },
+        error: {
+          icon: "🚨",
+          border: "#ef4444",
+          bg: "#fef2f2",
+          color: "#991b1b",
+        },
+        success: {
+          icon: "✅",
+          border: "#10b981",
+          bg: "#ecfdf5",
+          color: "#065f46",
+        },
       };
       const s = styles[data.variant];
       return `
@@ -124,7 +147,7 @@ async function main() {
   console.log("=== With Zod Validation Demo ===\n");
 
   const result = await remark()
-    .use(remarkComponents, {
+    .use(fencer, {
       schema: ComponentSchema,
       renderer: renderComponent,
     })
@@ -146,7 +169,7 @@ text: This has an invalid variant
 `;
 
   const result2 = await remark()
-    .use(remarkComponents, {
+    .use(fencer, {
       schema: ComponentSchema,
       onValidationError: "warn",
       renderer: (data) =>
