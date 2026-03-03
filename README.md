@@ -1,4 +1,4 @@
-# markdown-components
+# Fencer
 
 A [remark](https://github.com/remarkjs/remark) plugin that transforms fenced `component` code blocks (written in YAML) into custom rendered output. Works in Node.js and the browser.
 
