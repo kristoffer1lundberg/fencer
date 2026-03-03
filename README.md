@@ -80,6 +80,224 @@ console.log(String(result));
 <p>Regular paragraph here.</p>
 ```
 
+## Rendering by Component Type
+
+The real power of Fencer is using `data.type` (or any field you choose) to render **different components differently**. Here are practical patterns for handling multiple component types.
+
+### Basic `switch` on type
+
+The simplest approach — use a `switch` statement in your renderer to produce different HTML for each type:
+
+````markdown
+```component
+title: Did you know?
+type: factBox
+text: Honey never spoils.
+```
+
+```component
+type: callout
+variant: warning
+title: Heads up
+text: This API is deprecated and will be removed in v3.
+```
+
+```component
+type: quote
+text: The best way to predict the future is to invent it.
+author: Alan Kay
+year: 1971
+```
+````
+
+```js
+import { remark } from "remark";
+import remarkHtml from "remark-html";
+import fencer from "@kristofferlundb/fencer";
+
+const result = await remark()
+  .use(fencer, {
+    renderer: (data) => {
+      switch (data.type) {
+        case "factBox":
+          return `<div class="fact-box">
+            <h3>💡 ${data.title}</h3>
+            <p>${data.text}</p>
+          </div>`;
+
+        case "callout":
+          return `<aside class="callout callout--${data.variant}">
+            ${data.title ? `<strong>${data.title}</strong>` : ""}
+            <p>${data.text}</p>
+          </aside>`;
+
+        case "quote":
+          return `<blockquote class="quote">
+            <p>"${data.text}"</p>
+            <footer>— ${data.author}${data.year ? ` (${data.year})` : ""}</footer>
+          </blockquote>`;
+
+        default:
+          return `<div class="unknown-component"><pre>${JSON.stringify(data, null, 2)}</pre></div>`;
+      }
+    },
+  })
+  .use(remarkHtml, { sanitize: false })
+  .process(markdown);
+```
+
+### Type-safe rendering with a Zod discriminated union
+
+For production use, define per-type schemas and combine them into a [discriminated union](https://zod.dev/?id=discriminated-unions). This gives you full type safety inside each `case` branch:
+
+```ts
+import { z } from "zod";
+import { remark } from "remark";
+import remarkHtml from "remark-html";
+import fencer from "@kristofferlundb/fencer";
+
+// Define a schema for each component type
+const FactBoxSchema = z.object({
+  type: z.literal("factBox"),
+  title: z.string(),
+  text: z.string(),
+  source: z.string().optional(),
+});
+
+const CalloutSchema = z.object({
+  type: z.literal("callout"),
+  variant: z.enum(["info", "warning", "error", "success"]),
+  title: z.string().optional(),
+  text: z.string(),
+});
+
+const QuoteSchema = z.object({
+  type: z.literal("quote"),
+  text: z.string(),
+  author: z.string(),
+  year: z.number().optional(),
+});
+
+// Combine into a discriminated union on the "type" field
+const ComponentSchema = z.discriminatedUnion("type", [
+  FactBoxSchema,
+  CalloutSchema,
+  QuoteSchema,
+]);
+
+type ComponentData = z.infer<typeof ComponentSchema>;
+
+// The renderer now has full type narrowing inside each case
+function renderComponent(data: ComponentData): string {
+  switch (data.type) {
+    case "factBox":
+      // TS knows: data.title, data.text, data.source?
+      return `<div class="fact-box">
+        <h3>📘 ${data.title}</h3>
+        <p>${data.text}</p>
+        ${data.source ? `<small>Source: ${data.source}</small>` : ""}
+      </div>`;
+
+    case "callout":
+      // TS knows: data.variant, data.title?, data.text
+      const icons = { info: "ℹ️", warning: "⚠️", error: "🚨", success: "✅" };
+      return `<aside class="callout callout--${data.variant}">
+        ${data.title ? `<strong>${icons[data.variant]} ${data.title}</strong>` : ""}
+        <p>${data.text}</p>
+      </aside>`;
+
+    case "quote":
+      // TS knows: data.text, data.author, data.year?
+      return `<blockquote class="quote">
+        <p>"${data.text}"</p>
+        <footer>— ${data.author}${data.year ? ` (${data.year})` : ""}</footer>
+      </blockquote>`;
+  }
+}
+
+const result = await remark()
+  .use(fencer, {
+    schema: ComponentSchema,
+    renderer: renderComponent,
+  })
+  .use(remarkHtml, { sanitize: false })
+  .process(markdown);
+```
+
+With this setup, if someone writes an invalid component block in Markdown (e.g. a `callout` with `variant: "purple"`), Zod will catch it **at processing time** before it reaches your renderer.
+
+### Renderer lookup map
+
+If you prefer to avoid a `switch`, you can use an object map to look up renderers by type:
+
+```js
+const renderers = {
+  factBox: (data) =>
+    `<div class="fact-box"><h3>${data.title}</h3><p>${data.text}</p></div>`,
+
+  callout: (data) =>
+    `<aside class="callout callout--${data.variant}"><p>${data.text}</p></aside>`,
+
+  quote: (data) =>
+    `<blockquote><p>"${data.text}"</p><footer>— ${data.author}</footer></blockquote>`,
+};
+
+remark().use(fencer, {
+  renderer: (data) => {
+    const render = renderers[data.type];
+    if (!render) {
+      return `<div class="error">Unknown component type: ${data.type}</div>`;
+    }
+    return render(data);
+  },
+});
+```
+
+### Nested data and arrays
+
+Component types aren't limited to flat key-value pairs. Use nested objects and arrays for richer structures:
+
+````markdown
+```component
+type: card
+title: Project Update
+meta:
+  author: Jane Doe
+  date: 2025-01-15
+  tags:
+    - release
+    - frontend
+items:
+  - Redesigned the dashboard
+  - Fixed 12 accessibility issues
+  - Improved load time by 40%
+```
+````
+
+```js
+remark().use(fencer, {
+  renderer: (data) => {
+    switch (data.type) {
+      case "card":
+        const tags = (data.meta?.tags || [])
+          .map((t) => `<span class="tag">${t}</span>`)
+          .join(" ");
+        const items = (data.items || [])
+          .map((item) => `<li>${item}</li>`)
+          .join("\n");
+        return `<article class="card">
+          <h3>${data.title}</h3>
+          <div class="meta">By ${data.meta?.author} on ${data.meta?.date} ${tags}</div>
+          <ul>${items}</ul>
+        </article>`;
+
+      default:
+        return `<div>${JSON.stringify(data)}</div>`;
+    }
+  },
+});
+```
+
 ## API
 
 ### `fencer(options)`
@@ -104,7 +322,7 @@ renderer: (data) => ({
 
 #### `options.schema` (optional)
 
-A [Zod](https://zod.dev/) schema to validate parsed YAML against. When provided, the `data` argument in your renderer will be fully typed.
+A [Zod](https://zod.dev/) schema to validate parsed YAML against. When provided, the `data` argument in your renderer will be fully typed. This works with simple schemas and discriminated unions alike (see [Rendering by Component Type](#rendering-by-component-type) for a full union example).
 
 ```ts
 import { z } from "zod";
