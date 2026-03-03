@@ -57,7 +57,7 @@ function formatZodError(error) {
 }
 
 // src/plugin.ts
-function remarkComponents(options) {
+var remarkComponents = function remarkComponents2(options) {
   const {
     renderer,
     schema,
@@ -94,7 +94,7 @@ function remarkComponents(options) {
       }
     });
   };
-}
+};
 
 export { remarkComponents as default, parseYaml, remarkComponents, validateData };
 //# sourceMappingURL=index.js.map

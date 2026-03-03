@@ -1,5 +1,5 @@
 import { Root } from 'mdast';
-import { Transformer } from 'unified';
+import { Plugin } from 'unified';
 import { Node } from 'unist';
 import { ZodType } from 'zod';
 
@@ -67,7 +67,7 @@ interface PluginOptions<T = Record<string, unknown>> {
  * The content inside the fenced block is parsed as YAML, optionally validated
  * against a Zod schema, and then passed to a user-supplied renderer function.
  */
-declare function remarkComponents(options: PluginOptions): Transformer<Root>;
+declare const remarkComponents: Plugin<[PluginOptions<any>], Root>;
 
 /**
  * Parses a YAML string into a plain JavaScript object.
