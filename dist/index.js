@@ -4,25 +4,21 @@ import { parse } from 'yaml';
 // src/plugin.ts
 function parseYaml(content) {
   if (!content || content.trim().length === 0) {
-    throw new Error(
-      "[markdown-components] Empty component block \u2014 expected YAML content."
-    );
+    throw new Error("[fencer] Empty component block \u2014 expected YAML content.");
   }
   let parsed;
   try {
     parsed = parse(content);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    throw new Error(`[markdown-components] Failed to parse YAML: ${message}`);
+    throw new Error(`[fencer] Failed to parse YAML: ${message}`);
   }
   if (parsed === null || parsed === void 0) {
-    throw new Error(
-      "[markdown-components] YAML content resolved to null or undefined."
-    );
+    throw new Error("[fencer] YAML content resolved to null or undefined.");
   }
   if (typeof parsed !== "object" || Array.isArray(parsed)) {
     throw new Error(
-      `[markdown-components] Expected YAML to produce an object, but got ${Array.isArray(parsed) ? "an array" : typeof parsed}.`
+      `[fencer] Expected YAML to produce an object, but got ${Array.isArray(parsed) ? "an array" : typeof parsed}.`
     );
   }
   return parsed;
@@ -37,15 +33,15 @@ function validateData(data, schema, mode = "throw") {
   const errorMessage = formatZodError(result.error);
   switch (mode) {
     case "throw":
-      throw new Error(`[markdown-components] Validation error: ${errorMessage}`);
+      throw new Error(`[fencer] Validation error: ${errorMessage}`);
     case "warn":
-      console.warn(`[markdown-components] Validation warning: ${errorMessage}`);
+      console.warn(`[fencer] Validation warning: ${errorMessage}`);
       return data;
     case "passthrough":
       return data;
     default: {
       const _exhaustive = mode;
-      throw new Error(`[markdown-components] Unknown validation mode: ${_exhaustive}`);
+      throw new Error(`[fencer] Unknown validation mode: ${_exhaustive}`);
     }
   }
 }
@@ -57,7 +53,7 @@ function formatZodError(error) {
 }
 
 // src/plugin.ts
-var remarkComponents = function remarkComponents2(options) {
+var fencer = function fencer2(options) {
   const {
     renderer,
     schema,
@@ -66,7 +62,7 @@ var remarkComponents = function remarkComponents2(options) {
   } = options;
   if (typeof renderer !== "function") {
     throw new Error(
-      "[markdown-components] A `renderer` function is required in plugin options."
+      "[fencer] A `renderer` function is required in plugin options."
     );
   }
   return (tree) => {
@@ -89,13 +85,13 @@ var remarkComponents = function remarkComponents2(options) {
         parent.children.splice(index, 1, result);
       } else {
         throw new Error(
-          `[markdown-components] Renderer must return a string or a node object with a "type" property. Got: ${typeof result}`
+          `[fencer] Renderer must return a string or a node object with a "type" property. Got: ${typeof result}`
         );
       }
     });
   };
 };
 
-export { remarkComponents as default, parseYaml, remarkComponents, validateData };
+export { fencer as default, fencer, parseYaml, validateData };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map

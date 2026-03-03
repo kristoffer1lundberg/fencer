@@ -67,7 +67,7 @@ interface PluginOptions<T = Record<string, unknown>> {
  * The content inside the fenced block is parsed as YAML, optionally validated
  * against a Zod schema, and then passed to a user-supplied renderer function.
  */
-declare const remarkComponents: Plugin<[PluginOptions<any>], Root>;
+declare const fencer: Plugin<[PluginOptions<any>], Root>;
 
 /**
  * Parses a YAML string into a plain JavaScript object.
@@ -88,4 +88,4 @@ declare function parseYaml(content: string): Record<string, unknown>;
  */
 declare function validateData<T>(data: unknown, schema: ZodType<T>, mode?: ValidationErrorMode): T;
 
-export { type ComponentNode, type PluginOptions, type Renderer, type RendererResult, type ValidationErrorMode, remarkComponents as default, parseYaml, remarkComponents, validateData };
+export { type ComponentNode, type PluginOptions, type Renderer, type RendererResult, type ValidationErrorMode, fencer as default, fencer, parseYaml, validateData };
