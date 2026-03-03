@@ -1,6 +1,6 @@
 {
   "name": "@kristofferlundb/fencer",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A remark plugin that transforms fenced YAML component blocks into framework-agnostic rendered components with optional Zod validation",
   "repository": {
     "type": "git",
