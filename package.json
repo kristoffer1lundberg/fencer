@@ -4,11 +4,11 @@
   "description": "A remark plugin that transforms fenced YAML component blocks into framework-agnostic rendered components with optional Zod validation",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kristofferlundb/fencer.git"
+    "url": "git+https://github.com/kristoffer1lundberg/fencer"
   },
-  "homepage": "https://github.com/kristofferlundb/fencer#readme",
+  "homepage": "https://github.com/kristoffer1lundberg/fencer#readme",
   "bugs": {
-    "url": "https://github.com/kristofferlundb/fencer/issues"
+    "url": "https://github.com/kristoffer1lundberg/fencer/issues"
   },
   "type": "module",
   "main": "./dist/index.cjs",
